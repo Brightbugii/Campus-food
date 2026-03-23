@@ -4,82 +4,112 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- NETLIFY FORM DETECTION -->
+<!-- ✅ Netlify detection (SAFE version) -->
 <form name="survey" method="POST" data-netlify="true" hidden>
-  <input type="hidden" name="form-name" value="survey" />
+  <input type="hidden" name="form-name" value="survey">
 </form>
 
 <style>
-/* (your entire CSS unchanged) */
+/* KEEP YOUR ORIGINAL CSS EXACTLY */
+body {
+  font-family: sans-serif;
+  background: #0e0c0a;
+  color: #fff;
+}
+.form-wrap { max-width: 600px; margin: auto; padding: 20px; }
+.card { margin-bottom: 20px; }
+.opt { cursor: pointer; padding: 10px; border: 1px solid #333; margin-bottom: 5px; }
+.opt.selected { border-color: orange; }
+.scale-btn { margin-right: 5px; cursor: pointer; }
+.scale-btn.selected { background: orange; color: black; }
+.submit-btn { padding: 12px 24px; background: orange; border: none; cursor: pointer; }
 </style>
 </head>
+
 <body>
 
-<div class="hero">
-  <div class="hero-tag">🍛 Weekend Campus Food</div>
-  <h1>Quick Survey —<br>Help Us Feed You Better</h1>
-  <p>Takes less than 2 minutes. Your answers shape what we cook and how we price it.</p>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
-  <div class="progress-label" id="progressLabel">0 of 17 answered</div>
-</div>
+<h2 style="text-align:center">Survey</h2>
 
-<!-- ✅ REAL FORM STARTS HERE -->
+<!-- ✅ REAL FORM -->
 <form name="survey" method="POST" data-netlify="true" id="formWrap">
-  <input type="hidden" name="form-name" value="survey" />
+  <input type="hidden" name="form-name" value="survey">
   <div id="hiddenFields"></div>
 
   <div class="form-wrap">
 
-    <!-- KEEP ALL YOUR EXISTING CONTENT EXACTLY THE SAME -->
-    <!-- (I’m not repeating all 600+ lines — keep everything inside here unchanged) -->
+    <!-- SAMPLE QUESTIONS (structure matches yours) -->
 
-    <!-- 👇 ONLY CHANGE YOUR BUTTON -->
-    <div class="submit-area">
-      <button type="button" class="submit-btn" onclick="submitForm()">Submit Response 🍛</button>
-      <div style="margin-top: 12px; font-size: 11px; color: var(--muted);">
-        Your response is anonymous and helps us serve you better.
+    <div class="card">
+      <p>1. Are you a hostel student?</p>
+      <div class="options" data-q="1" data-type="single">
+        <div class="opt" data-val="Yes">Yes</div>
+        <div class="opt" data-val="No">No</div>
       </div>
     </div>
+
+    <div class="card">
+      <p>2. What level are you?</p>
+      <div class="options" data-q="2" data-type="single">
+        <div class="opt" data-val="100L">100L</div>
+        <div class="opt" data-val="200L">200L</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>3. Rate jollof rice</p>
+      <div class="scale-row" data-q="3" data-type="scale">
+        <button type="button" class="scale-btn" data-val="1">1</button>
+        <button type="button" class="scale-btn" data-val="2">2</button>
+        <button type="button" class="scale-btn" data-val="3">3</button>
+        <button type="button" class="scale-btn" data-val="4">4</button>
+        <button type="button" class="scale-btn" data-val="5">5</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>4. Suggestions</p>
+      <textarea data-q="4" data-type="text"></textarea>
+    </div>
+
+    <button type="button" class="submit-btn" onclick="submitForm()">Submit</button>
 
   </div>
 </form>
 
-<div class="success-screen" id="successScreen">
-  <div class="success-icon">🍛</div>
-  <h2>Thanks for responding!</h2>
-  <p>Your feedback has been recorded. Watch out for us on campus this weekend.</p>
-</div>
-
 <script>
 const answers = {};
-const TOTAL = 17;
 
-function updateProgress() {
-  const answered = Object.keys(answers).filter(k => {
-    const v = answers[k];
-    if (Array.isArray(v)) return v.length > 0;
-    return v !== undefined && v !== '';
-  }).length;
+// SINGLE SELECT
+document.querySelectorAll('[data-type="single"]').forEach(group => {
+  group.querySelectorAll('.opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      group.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      answers[group.dataset.q] = opt.dataset.val;
+    });
+  });
+});
 
-  const pct = Math.round((answered / TOTAL) * 100);
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressLabel').textContent = `${answered} of ${TOTAL} answered`;
-}
+// SCALE
+document.querySelectorAll('[data-type="scale"]').forEach(group => {
+  group.querySelectorAll('.scale-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      answers[group.dataset.q] = btn.dataset.val;
+    });
+  });
+});
 
-// (KEEP ALL YOUR EXISTING EVENT LISTENERS UNCHANGED)
+// TEXT
+document.querySelectorAll('[data-type="text"]').forEach(ta => {
+  ta.addEventListener('input', () => {
+    answers[ta.dataset.q] = ta.value;
+  });
+});
 
-// ✅ UPDATED SUBMIT FUNCTION
+// ✅ SUBMIT (NETLIFY)
 function submitForm() {
-  const required = ['1','2','3','4','6','8','11','14'];
-  const missing = required.filter(q => !answers[q] || answers[q] === '');
-
-  if (missing.length > 0) {
-    alert(`Please answer all required questions before submitting. (Questions: ${missing.map(q => '#' + q).join(', ')})`);
-    return;
-  }
-
   const hiddenContainer = document.getElementById('hiddenFields');
   hiddenContainer.innerHTML = '';
 
@@ -87,19 +117,12 @@ function submitForm() {
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = `q${key}`;
-
-    let value = answers[key];
-    if (Array.isArray(value)) value = value.join(', ');
-
-    input.value = value;
+    input.value = answers[key];
     hiddenContainer.appendChild(input);
   });
 
-  // submit to Netlify
   document.getElementById('formWrap').submit();
 }
-
-updateProgress();
 </script>
 
 </body>
