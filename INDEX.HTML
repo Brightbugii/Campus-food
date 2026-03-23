@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- NETLIFY FORM DETECTION -->
+<form name="survey" method="POST" data-netlify="true" hidden>
+  <input type="hidden" name="form-name" value="survey" />
+</form>
+
+<style>
+/* (your entire CSS unchanged) */
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">🍛 Weekend Campus Food</div>
+  <h1>Quick Survey —<br>Help Us Feed You Better</h1>
+  <p>Takes less than 2 minutes. Your answers shape what we cook and how we price it.</p>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="progress-label" id="progressLabel">0 of 17 answered</div>
+</div>
+
+<!-- ✅ REAL FORM STARTS HERE -->
+<form name="survey" method="POST" data-netlify="true" id="formWrap">
+  <input type="hidden" name="form-name" value="survey" />
+  <div id="hiddenFields"></div>
+
+  <div class="form-wrap">
+
+    <!-- KEEP ALL YOUR EXISTING CONTENT EXACTLY THE SAME -->
+    <!-- (I’m not repeating all 600+ lines — keep everything inside here unchanged) -->
+
+    <!-- 👇 ONLY CHANGE YOUR BUTTON -->
+    <div class="submit-area">
+      <button type="button" class="submit-btn" onclick="submitForm()">Submit Response 🍛</button>
+      <div style="margin-top: 12px; font-size: 11px; color: var(--muted);">
+        Your response is anonymous and helps us serve you better.
+      </div>
+    </div>
+
+  </div>
+</form>
+
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">🍛</div>
+  <h2>Thanks for responding!</h2>
+  <p>Your feedback has been recorded. Watch out for us on campus this weekend.</p>
+</div>
+
+<script>
+const answers = {};
+const TOTAL = 17;
+
+function updateProgress() {
+  const answered = Object.keys(answers).filter(k => {
+    const v = answers[k];
+    if (Array.isArray(v)) return v.length > 0;
+    return v !== undefined && v !== '';
+  }).length;
+
+  const pct = Math.round((answered / TOTAL) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${answered} of ${TOTAL} answered`;
+}
+
+// (KEEP ALL YOUR EXISTING EVENT LISTENERS UNCHANGED)
+
+// ✅ UPDATED SUBMIT FUNCTION
+function submitForm() {
+  const required = ['1','2','3','4','6','8','11','14'];
+  const missing = required.filter(q => !answers[q] || answers[q] === '');
+
+  if (missing.length > 0) {
+    alert(`Please answer all required questions before submitting. (Questions: ${missing.map(q => '#' + q).join(', ')})`);
+    return;
+  }
+
+  const hiddenContainer = document.getElementById('hiddenFields');
+  hiddenContainer.innerHTML = '';
+
+  Object.keys(answers).forEach(key => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = `q${key}`;
+
+    let value = answers[key];
+    if (Array.isArray(value)) value = value.join(', ');
+
+    input.value = value;
+    hiddenContainer.appendChild(input);
+  });
+
+  // submit to Netlify
+  document.getElementById('formWrap').submit();
+}
+
+updateProgress();
+</script>
+
+</body>
+</html>
